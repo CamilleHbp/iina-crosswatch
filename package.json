@@ -1,0 +1,12 @@
+{
+  "name": "iina-crosswatch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone IINA scrobbler for CrossWatch",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "build": "python3 scripts/package.py"
+  },
+  "engines": { "node": ">=18" }
+}
