@@ -7,7 +7,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
 FILES = ['Info.json', 'main.js', 'media.js', 'client.js', 'tracker.js', 'transport.js',
-         'sidebar.html', 'preferences.html', 'README.md', 'LICENSE']
+         'preferences.html', 'README.md', 'LICENSE']
 
 def build():
     info = json.loads((ROOT / 'Info.json').read_text())

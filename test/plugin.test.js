@@ -114,7 +114,7 @@ test('IINA entry handles title lookup, durable failures, stop rollover and resta
     });
   }
   const flush=()=>new Promise(resolve=>setImmediate(resolve));
-  boot();assert.equal(Object.keys(messages).length,0);handlers['iina.window-loaded']();assert.ok(messages.check);handlers['iina.file-loaded']();await flush();await flush();
+  boot();handlers['iina.file-loaded']();await flush();await flush();
   assert.equal(requests.length,1);assert.ok(Object.keys(JSON.parse(prefs.pending)).length);assert.ok(syncs>0);
   values['time-pos']=0;handlers['mpv.end-file']();await flush();
   const pending=Object.values(JSON.parse(prefs.pending));assert.equal(pending[0].progress,10);

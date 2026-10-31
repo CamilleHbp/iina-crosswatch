@@ -10,8 +10,6 @@ var generation = 0;
 var busy = false;
 var retryAt = 0;
 var retryCount = 0;
-var sidebarReady = false;
-var sidebarInitialized = false;
 var session = Date.now().toString(36) + Math.random().toString(36).slice(2);
 var sequence = 0;
 
@@ -24,7 +22,6 @@ function readJSON(key, fallback) {
 }
 function publish(message) {
   if (message) state.status = message;
-  if (sidebarReady) iina.sidebar.postMessage("state", state);
 }
 function client() { return clientTools.createClient(transport, clientTools.configuration(preferences)); }
 function target() {
@@ -129,11 +126,10 @@ async function search(query, type, year, automatic) {
     state.results = results;
     var match = automatic && state.parsed && setting("auto_match", true) ? mediaTools.chooseMatch(state.parsed, results) : null;
     if (match) select(match, state.parsed.season, state.parsed.episode, false);
-    else publish(results.length ? "Select the correct title below to start tracking." : "No matches. Try another title or enter an ID.");
+    else publish(results.length ? "Choose Plugin → Search CrossWatch to select the correct title." : "No matches. Use Plugin → Search CrossWatch or Identify video by ID.");
   } catch (error) { if (current === generation) publish(error.message); }
 }
 function loaded() {
-  initializeSidebar();
   if (state.media) finish();
   generation++;
   session = Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -161,45 +157,34 @@ function loaded() {
   }
 }
 
-function initializeSidebar() {
-  if (sidebarInitialized) return;
-  iina.sidebar.loadFile("sidebar.html");
-  sidebarInitialized = true;
-
-iina.sidebar.onMessage("ready", function () { sidebarReady = true; publish(); });
-iina.sidebar.onMessage("search", function (data) {
-  if (!state.file) { publish("Open a video first."); return; }
-  search(data.query || "", data.type, Number(data.year) || null, false);
-});
-iina.sidebar.onMessage("select", function (data) {
+iina.menu.addItem(iina.menu.item("CrossWatch status", function () { iina.core.osd(state.status); }));
+iina.menu.addItem(iina.menu.item("Retry pending CrossWatch updates", function () { retryAt = 0; retryCount = 0; pump(); }));
+iina.menu.addItem(iina.menu.item("Stop tracking this video", function () {
+  generation++; tracker.select(null); state.media = null; publish("Tracking stopped for this file."); iina.core.osd(state.status);
+}));
+iina.menu.addItem(iina.menu.item("Search CrossWatch…", async function () {
+  if (!state.file) loaded();
   if (!state.file) return;
+  var query = iina.utils.prompt("CrossWatch: enter the movie or series title");
+  if (!query || String(query).trim().length < 2) return;
+  var episode = iina.utils.prompt("Episode: enter S01E02, or leave blank for a movie");
+  if (episode === null || episode === undefined || episode === false) return;
+  var parts = /^S(\d+)E(\d+)$/i.exec(String(episode).trim());
+  if (String(episode).trim() && !parts) { iina.core.osd("Use S01E02, or leave blank for a movie."); return; }
+  var current = generation;
   try {
-    var item = state.results[Number(data.index)];
-    if (!item) throw new Error("Search again to choose a title.");
-    select(item, data.season, data.episode, true);
-  } catch (error) { publish(error.message); }
-});
-iina.sidebar.onMessage("manual", function (data) {
-  if (!state.file) return;
-  try {
-    var id = String(data.id || "").trim();
-    select({ type: data.type, title: data.title || state.parsed.title,
-      tmdb: /^\d+$/.test(id) ? id : null, imdb: /^tt/.test(id) ? id : null }, data.season, data.episode, true);
-  } catch (error) { publish(error.message); }
-});
-iina.sidebar.onMessage("retry", function () { retryAt = 0; retryCount = 0; pump(); });
-iina.sidebar.onMessage("check", async function () {
-  try { await client().check(); publish("Connected to CrossWatch. API token accepted."); }
-  catch (error) { publish(error.message); }
-});
-iina.sidebar.onMessage("skip", function () {
-  generation++;
-  tracker.select(null);
-  state.media = null;
-  publish("Tracking stopped for this file.");
-});
-}
-iina.menu.addItem(iina.menu.item("CrossWatch", function () { initializeSidebar(); iina.sidebar.show(); }));
+    var results = await client().search(String(query).trim().slice(0,200), parts ? "show" : "movie", null);
+    if (current !== generation) return;
+    if (!results.length) { iina.core.osd("CrossWatch: no matching titles."); return; }
+    var choices = results.slice(0,10);
+    var choice = iina.utils.prompt(choices.map(function(item,index){ return (index+1)+". "+item.title+(item.year ? " ("+item.year+")" : ""); }).join("\n")+"\n\nEnter the matching number:");
+    var selected = Number(choice);
+    if (!Number.isInteger(selected) || selected < 1 || selected > choices.length) return;
+    if (current !== generation) return;
+    select(choices[selected-1], parts ? parts[1] : null, parts ? parts[2] : null, true);
+    iina.core.osd("CrossWatch: tracking "+state.media.title);
+  } catch (error) { publish(error.message); iina.core.osd(error.message); }
+}));
 iina.menu.addItem(iina.menu.item("Check CrossWatch connection", async function () {
   try { await client().check(); publish("Connected to CrossWatch. API token accepted."); iina.core.osd("CrossWatch connected"); }
   catch (error) { publish(error.message); iina.core.osd(error.message); }
@@ -220,7 +205,6 @@ iina.menu.addItem(iina.menu.item("Identify video by ID…", function () {
     iina.core.osd("CrossWatch: tracking " + state.media.title);
   } catch (error) { iina.core.osd(error.message); }
 }));
-iina.event.on("iina.window-loaded", initializeSidebar);
 iina.event.on("iina.file-loaded", loaded);
 iina.event.on("mpv.pause.changed", function () { sample(true); });
 iina.event.on("mpv.end-file", finish);

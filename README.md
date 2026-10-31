@@ -13,13 +13,13 @@ A standalone IINA plugin that saves movie and episode playback directly to your 
 
 In IINA, open **Settings → Plugins → Install from GitHub** and enter `CamilleHbp/iina-crosswatch`. Alternatively, open the `.iinaplgz` release package in IINA. Restart IINA after installation.
 
-Select **CrossWatch Scrobbler → Preferences**, enter your server's HTTPS URL and dedicated API token, and leave the tracker instance as `default` unless you use another instance. Open **Plugins → CrossWatch** while playing a video and click **Check connection**.
+Select **CrossWatch Scrobbler → Preferences**, enter your server's HTTPS URL and dedicated API token, and leave the tracker instance as `default` unless you use another instance. Use **Plugin → Check CrossWatch connection** to test the connection.
 
 ## Watching
 
 The plugin recognizes names such as `The.Matrix.1999.mkv`, `Severance.S01E02.mkv`, and `Severance.1x02.mkv`. Movies require an exact title and year for automatic matching. Series require a unique exact title match. A filename containing an IMDb ID can be matched directly.
 
-For ambiguous names, multi-episode files, or streams with opaque filenames, use the CrossWatch sidebar to search and select a title. For episodes, enter the season and episode. You can also enter a movie or series IMDb ID (`tt0133093`) or TMDb number (`603`). Manual selections are remembered for that filename. The **Plugin → Identify video by ID…** menu also provides native macOS dialogs for ID entry, and **Check CrossWatch connection** tests the server directly.
+For ambiguous names, multi-episode files, or streams with opaque filenames, use **Plugin → Search CrossWatch…**, enter the title, and choose a result. For episodes, enter the season and episode as `S01E02`; leave that field blank for a movie. You can also enter a movie or series IMDb ID (`tt0133093`) or TMDb number (`603`). Manual selections are remembered for that filename. Use **Plugin → Identify video by ID…** for direct ID entry. **CrossWatch status** shows the latest delivery or matching status. All controls use native IINA menus and macOS dialogs.
 
 Progress is saved every 30 seconds and when playback pauses or stops. At 80% completion, after at least 60 seconds of actual playback, the plugin records watched history and clears the resume entry. Both thresholds can be adjusted. For short videos, the minimum is half the duration. Seeking does not count toward the minimum playback time. History is recorded once per playback session; starting the file again permits a rewatch.
 

@@ -3,13 +3,20 @@
   "identifier": "io.github.camillehbp.iina-crosswatch",
   "version": "1.0.0",
   "description": "Save IINA playback progress and watched history directly to your CrossWatch tracker.",
-  "author": { "name": "CamilleHbp" },
+  "author": {
+    "name": "CamilleHbp"
+  },
   "ghRepo": "CamilleHbp/iina-crosswatch",
   "ghVersion": 1,
   "entry": "main.js",
-  "sidebarTab": { "name": "CrossWatch" },
-  "permissions": ["network-request", "show-osd", "file-system"],
-  "allowedDomains": ["*"],
+  "permissions": [
+    "network-request",
+    "show-osd",
+    "file-system"
+  ],
+  "allowedDomains": [
+    "*"
+  ],
   "preferencesPage": "preferences.html",
   "preferenceDefaults": {
     "server_url": "",

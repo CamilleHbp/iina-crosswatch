@@ -10,7 +10,7 @@
 <label><input type="checkbox" data-type="bool" data-pref-key="auto_match"> Automatically match unambiguous titles</label>
 <label>Mark watched at (%) <input type="number" min="50" max="100" data-type="int" data-pref-key="watched_threshold"></label>
 <label>Minimum playback before marking watched (seconds) <input type="number" min="1" max="3600" data-type="int" data-pref-key="minimum_watch_seconds"></label>
-<p class="small secondary">Open the CrossWatch sidebar to check the connection or choose a title. Progress is saved every 30 seconds and on pause or stop. Only the selected CrossWatch tracker is updated.</p>
+<p class="small secondary">Use the Plugin menu to check the connection, search for a title, or enter an ID. Progress is saved every 30 seconds and on pause or stop. Only the selected CrossWatch tracker is updated.</p>
 <script>
 const token = document.getElementById('token');
 iina.preferences.get('api_token', value => { token.value = value || ''; });
